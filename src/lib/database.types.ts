@@ -28,6 +28,18 @@ export type Database = {
         Insert: Omit<Database['public']['Tables']['labs']['Row'], 'id' | 'created_at'>;
         Update: Partial<Database['public']['Tables']['labs']['Insert']>;
       };
+      user_profiles: {
+        Row: {
+          id: string;
+          username: string | null;
+          full_name: string | null;
+          avatar_url: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['user_profiles']['Row'], 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['user_profiles']['Insert']>;
+      };
       user_progress: {
         Row: {
           id: string;

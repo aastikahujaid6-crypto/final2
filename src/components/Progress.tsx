@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Trophy, Target, Zap, Award, Calendar, TrendingUp } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
 export function Progress() {
+  const { user } = useAuth();
   const [totalPoints, setTotalPoints] = useState(0);
   const [labsCompleted, setLabsCompleted] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
@@ -13,15 +15,19 @@ export function Progress() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadProgressData();
-  }, []);
+    if (user) {
+      loadProgressData();
+    }
+  }, [user]);
 
   const loadProgressData = async () => {
+    if (!user) return;
+
     try {
       const { data: progressData, error } = await supabase
         .from('user_progress')
         .select('*')
-        .eq('user_id', 'default_user')
+        .eq('user_id', user.id)
         .order('completed_at', { ascending: false });
 
       if (error) throw error;
@@ -51,7 +57,7 @@ export function Progress() {
       const { data: activityData } = await supabase
         .from('daily_activity')
         .select('activity_date')
-        .eq('user_id', 'default_user')
+        .eq('user_id', user.id)
         .order('activity_date', { ascending: false });
 
       if (activityData && activityData.length > 0) {

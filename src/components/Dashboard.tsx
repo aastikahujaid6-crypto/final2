@@ -1,23 +1,29 @@
 import { useState, useEffect } from 'react';
 import { Target, Zap, Award, TrendingUp } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
 export function Dashboard() {
+  const { user } = useAuth();
   const [totalPoints, setTotalPoints] = useState(0);
   const [labsCompleted, setLabsCompleted] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [skillLevel, setSkillLevel] = useState('Beginner');
 
   useEffect(() => {
-    loadDashboardData();
-  }, []);
+    if (user) {
+      loadDashboardData();
+    }
+  }, [user]);
 
   const loadDashboardData = async () => {
+    if (!user) return;
+
     try {
       const { data: progressData, error } = await supabase
         .from('user_progress')
         .select('*')
-        .eq('user_id', 'default_user');
+        .eq('user_id', user.id);
 
       if (error) throw error;
 
@@ -40,7 +46,7 @@ export function Dashboard() {
       const { data: activityData } = await supabase
         .from('daily_activity')
         .select('activity_date')
-        .eq('user_id', 'default_user')
+        .eq('user_id', user.id)
         .order('activity_date', { ascending: false });
 
       if (activityData && activityData.length > 0) {
